@@ -106,6 +106,7 @@ def astar(maze, start, end):
             # Add the child to the open list
             heapq.heappush(open_list, child)
 
+    # Return None if the exit is unreachable
     return None
 
 
@@ -149,39 +150,36 @@ def create_maze_matrix(maze):
 
 def print_results(path, maze, max_moves):
 
-    # Print the path only if there is a way out from the maze
-    if isinstance(path, Iterable):
-        for step in path:
-            maze[step[0]][step[1]] = 2
+    # Add path to the maze
+    for step in path:
+        maze[step[0]][step[1]] = 2
 
-        print()
-        for row in maze:
-            line = []
-            for col in row:
-                if col == 1:
-                    line.append("\u2588")
-                elif col == 0:
-                    line.append(" ")
-                elif col == 2:
-                    line.append("\u00b7")
-            print("".join(line))
+    # Print the finished maze
+    print()
+    for row in maze:
+        line = []
+        for col in row:
+            if col == 1:
+                line.append("\u2588")
+            elif col == 0:
+                line.append(" ")
+            elif col == 2:
+                line.append("\u00b7")
+        print("".join(line))
 
-        if len(path) <= max_moves:
-            print(
-                f'Congratulations! Pentti got out from the maze in {len(path)-1} moves.')
+    if len(path) <= max_moves:
+        print(
+            f'Congratulations! Pentti got out from the maze in {len(path)-1} moves.')
 
-        # Print if max_moves is not enough to get out of the maze
-        else:
-            print(
-                f'{max_moves} moves is not enough to get out from the maze. You need {len(path)-1} moves to get out.')
-
+    # Print if max_moves is not enough to get out of the maze
     else:
-        print("The exit is unreachable.")
+        print(
+            f'{max_moves} moves is not enough to get out from the maze. You need {len(path)-1} moves to get out.')
 
 
 def main():
     # Read the maze file, create the maze matrix and find the starting point and all the exit points
-    maze = read_maze_file('mazes/maze-task-fourth.txt')
+    maze = read_maze_file('mazes/maze-task-no_exit.txt')
     maze_matrix, start, exits = create_maze_matrix(maze)
 
     # Get paths for all exits
@@ -198,8 +196,12 @@ def main():
                 if(len(path[i]) <= len(closest_exit)):
                     closest_exit = path[i]
 
-        # Print path for the closest exit
-        print_results(closest_exit, maze_matrix, 200)
+            # Print path for the closest exit
+            print_results(closest_exit, maze_matrix, 200)
+
+        else:
+            print("The exit is unreachable.")
+
     else:
         print('Your maze is missing the exit.')
 
