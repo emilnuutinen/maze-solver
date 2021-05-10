@@ -1,5 +1,7 @@
+from posix import listdir
 from typing import Iterable
 import heapq
+import os
 
 
 class Node:
@@ -187,12 +189,19 @@ def get_results(maze):
         for col, j in enumerate(index):
             path.append(astar(maze_matrix, start, index[col]))
 
-    # Find the closest exit
+    # Find the closest exit if the maze is solvable
     if len(path) > 0:
         closest_exit = path[0]
         if isinstance(path, Iterable) and isinstance(closest_exit, Iterable):
             for i in range(0, len(path)):
-                if(len(path[i]) <= len(closest_exit)):
+
+                # Stop the program if the maze has a wrong format
+                if (path[i] == None or closest_exit == None):
+                    print('The maze file has a wrong format.')
+
+                    return
+
+                elif (len(path[i]) <= len(closest_exit)):
                     closest_exit = path[i]
 
             # Test the maze with the defined max moves
@@ -220,8 +229,26 @@ def get_results(maze):
 
 
 def main():
+
+    # Get mazes form the mazes folder
+    mazes = []
+    print()
+    for i, file in enumerate(os.listdir('mazes')):
+        if file.endswith(".txt"):
+            mazes.append(file)
+            print(f'{i}) {file}')
+
+    # Ask for users choice
+    print()
+    choice = int(
+        input('Give the number of the maze you want to solve: '))
+    print()
+
+    # Get the full path for the selected file
+    selected_file = os.path.join("mazes", mazes[choice])
+
     # Read the maze file, create the maze matrix and find the starting point and all the exit points
-    maze = read_maze_file('mazes/maze-task-first.txt')
+    maze = read_maze_file(selected_file)
     get_results(maze)
 
 
