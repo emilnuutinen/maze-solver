@@ -1,4 +1,3 @@
-from posix import listdir
 from typing import Iterable
 import heapq
 import os
@@ -220,6 +219,8 @@ def get_results(maze):
                     draw_finished_maze(closest_exit, maze_matrix)
 
                     return
+
+            return
 
         else:
             print("The exit is unreachable.")
