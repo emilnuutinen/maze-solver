@@ -1,22 +1,21 @@
-# Maze-task
+# Maze solver
 
-Pentti got stuck in a maze.
+A simple maze solver that uses the A* algorithm to find the shortest path through a maze.
 
-Implement an algorithm to find a route through a maze given in a .txt file, or tell if there is no possible route available.
+The program prints a list of .txt files in the `mazes` folder and asks you to choose the one you want to solve.
 
-In the map file ‘#’ represents a block, ‘ ‘ (space) represents movable space and ‘E’ means an exit. ‘^’ is the starting position. Going outside the maze area is not allowed.
+It then tries to solve the maze with 20 moves and if that fails it tries with 150 moves and finally with 200 moves. If the maze is solved with the given maximum moves the program stops and draws the solution on the command line. 
 
-Pentti can move in 4 directions, and each move has equal cost. Each map should be tried with the same algorithm and with 20, 150 and 200 maximum moves.
-The solution must be printed to something visible, either to a file, on the command line, or graphically. Optimal solution not required, but bonus points for it!
+## Requirements
 
-Evaluation criteria:
+Requires `Python 3.5.9` or later
 
-- Design
-- Structure
-- Use of language features
-- Clarity of implementation
-- Error checking
-- Comments
-- Testability
-- Documentation
-- Usability
+## Usage
+
+The maze files need to follow the format defined in the maze-task assignment. 
+
+Put the maze files in the `mazes` folder and run the program in the command line with: 
+
+```
+$ python3 maze_solver.py
+```
