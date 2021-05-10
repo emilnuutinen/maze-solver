@@ -15,11 +15,11 @@ class Node:
     def __eq__(self, other):
         return self.position == other.position
 
-    # defining less than for purposes of heap queue
+    # defining less than for the heap queue
     def __lt__(self, other):
         return self.f < other.f
 
-    # defining greater than for purposes of heap queue
+    # defining greater than for the heap queue
     def __gt__(self, other):
         return self.f > other.f
 
@@ -30,7 +30,7 @@ def return_path(current_node):
     while current is not None:
         path.append(current.position)
         current = current.parent
-    return path[::-1]  # Return reversed path
+    return path[::-1]  # Return the reversed path
 
 
 def astar(maze, start, end):
@@ -41,7 +41,7 @@ def astar(maze, start, end):
     end_node = Node(None, end)
     end_node.g = end_node.h = end_node.f = 0
 
-    # Initialize open and closed lists
+    # Initialize open & closed lists
     open_list = []
     closed_list = []
 
@@ -52,14 +52,14 @@ def astar(maze, start, end):
     # get the adjacent nodes
     adjacent_nodes = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
-    # Loop until you find the end
+    # Loop until you find the end node
     while len(open_list) > 0:
 
         # Get the current node
         current_node = heapq.heappop(open_list)
         closed_list.append(current_node)
 
-        # Found the goal
+        # Return the path if end node is found
         if current_node == end_node:
             return return_path(current_node)
 
@@ -72,11 +72,11 @@ def astar(maze, start, end):
             node_position = (
                 current_node.position[0] + next_position[0], current_node.position[1] + next_position[1])
 
-            # Make sure within range
+            # Make sure were inside the maze
             if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (len(maze[len(maze)-1]) - 1) or node_position[1] < 0:
                 continue
 
-            # Make sure walkable terrain
+            # check for walls
             if maze[node_position[0]][node_position[1]] != 0:
                 continue
 
@@ -88,13 +88,12 @@ def astar(maze, start, end):
 
         # Loop through children
         for child in children:
-            # Child is on the closed list
+            # Check if the child is on the closed list
             if len([closed_child for closed_child in closed_list if closed_child == child]) > 0:
                 continue
 
-            # Create the f, g, and h values
+            # Create the f, g, and h values (Manhattan distance)
             child.g = current_node.g + 1
-            # Manhattan distance to end node
             child.h = abs(child.position[0] - end_node.position[0]) + \
                 abs(child.position[1] - end_node.position[1])
             child.f = child.g + child.h
@@ -110,12 +109,14 @@ def astar(maze, start, end):
     return None
 
 
+# Open and read the maze file
 def read_maze_file(file):
     with open(file, "r") as f:
         maze = f.read().splitlines()
     return maze
 
 
+# Transform the matrix into a numerical form and find the start point and ending points
 def create_maze_matrix(maze):
 
     matrix = []
@@ -125,15 +126,16 @@ def create_maze_matrix(maze):
     for line in maze:
         matrix.append([line[i:i+1] for i in range(0, len(line), 1)])
 
-    # Find starting point
+    # Find the starting point
     start = [[(i, j) for j, cell in enumerate(row) if cell == '^']
              for i, row in enumerate(matrix) if '^' in row][0][0]
 
-    # Find all ending points
+    # Find all the ending points
     exits.append([(i, j) for i, row in enumerate(matrix)
                   for j, col in enumerate(row) if col == 'E'])
 
     # Change maze characters into numbers
+    # Wall is 1, everything else is 0
     for row in range(len(matrix)):
         for col in range(len(matrix[row])):
             if matrix[row][col] == '#':
@@ -148,7 +150,7 @@ def create_maze_matrix(maze):
     return matrix, start, exits
 
 
-def print_results(path, maze, max_moves):
+def draw_finished_maze(path, maze):
 
     # Add path to the maze
     for step in path:
@@ -160,27 +162,24 @@ def print_results(path, maze, max_moves):
         line = []
         for col in row:
             if col == 1:
+                # Full size block represents wall
                 line.append("\u2588")
             elif col == 0:
+                # Movable space
                 line.append(" ")
             elif col == 2:
+                # Centered dot represents the path
                 line.append("\u00b7")
         print("".join(line))
 
-    if len(path) <= max_moves:
-        print(
-            f'Congratulations! Pentti got out from the maze in {len(path)-1} moves.')
 
-    # Print if max_moves is not enough to get out of the maze
-    else:
-        print(
-            f'{max_moves} moves is not enough to get out from the maze. You need {len(path)-1} moves to get out.')
+def get_results(maze):
 
-
-def main():
-    # Read the maze file, create the maze matrix and find the starting point and all the exit points
-    maze = read_maze_file('mazes/maze-task-no_exit.txt')
+    # Create the numerical maze matrix, starting point for Pentti and all the exit points
     maze_matrix, start, exits = create_maze_matrix(maze)
+
+    # Create a list of max moves
+    max_moves = [20, 150, 200]
 
     # Get paths for all exits
     path = []
@@ -196,14 +195,34 @@ def main():
                 if(len(path[i]) <= len(closest_exit)):
                     closest_exit = path[i]
 
-            # Print path for the closest exit
-            print_results(closest_exit, maze_matrix, 200)
+            # Test the maze with the defined max moves
+            for move in max_moves:
+                # If the maze is unsolvable with the current max moves
+                if len(closest_exit)-1 >= move:
+                    print(f'Trying the maze with {move} moves.')
+                    print(f'FAIL. The maze is unsolvable in {move} moves.')
+                    print()
+
+                # Else print the results
+                else:
+                    print(f'Trying the maze with {move} moves.')
+                    print(
+                        f'PASS! Pentti got out of the maze in {len(closest_exit)-1} moves!')
+                    draw_finished_maze(closest_exit, maze_matrix)
+
+                    return
 
         else:
             print("The exit is unreachable.")
 
     else:
         print('Your maze is missing the exit.')
+
+
+def main():
+    # Read the maze file, create the maze matrix and find the starting point and all the exit points
+    maze = read_maze_file('mazes/maze-task-first.txt')
+    get_results(maze)
 
 
 if __name__ == "__main__":
